@@ -1,10 +1,10 @@
-# DOJO EPSS
+# DOJO CTI
 
 Continuous threat monitoring Django library for DefectDojo.
 
-Dojo EPSS enriches your existing DefectDojo Findings with real-world exploitability signals. It scans CVEs already present in DefectDojo against FIRST.org EPSS data, CISA KEV data, and ransomware usage indicators so teams can continuously understand which vulnerabilities deserve priority.
+Dojo CTI enriches your existing DefectDojo Findings with real-world exploitability signals. It scans CVEs already present in DefectDojo against FIRST.org EPSS data, CISA KEV data, and ransomware usage indicators, POC, ITW so teams can continuously understand which vulnerabilities deserve priority.
 
-The library is built for Django-DefectDojo and is designed to be additive: it provides its own Django app, management UI, scheduled jobs, manual actions, audit logs, and API output while keeping DefectDojo's core models and business logic intact.
+The library is built for Django-DefectDojo and is designed to be additive: it provides its own Django app, management UI, scheduled jobs, manual scans, audit logs, and API output while keeping DefectDojo's core models and business logic intact.
 
 ## Features
 
@@ -13,23 +13,24 @@ The library is built for Django-DefectDojo and is designed to be additive: it pr
 - Ransomware usage signal from KEV-compatible sources
 - First-found KEV date tracking without overwriting existing dates on later scans
 - Manual fetch and compare actions from the EPSS / KEV UI
-- UI-controlled scheduled scans using DefectDojo's Celery beat and workers
-- Configurable EPSS source: FIRST.org API or daily CSV
+- Scheduled scans using DefectDojo's Celery beat and workers
+- Configurable EPSS source: FIRST.org API or or custom CSV URL
 - Configurable KEV source URL and source format
 - Finding scope controls for eligible EPSS updates
 - EPSS / KEV dashboard and update logs
 - Additive EPSS Update / KEV indicators on the Findings list
 - Swagger-visible API endpoint for Finding match data
 - Docker installer for DefectDojo dev and production-style deployments
+- Check if the stored CVE is exploited in the wild (ITW) and Proof of Concept (POC) is publicly available - (Developement in Progress)
 
 ## What It Does
 
-Dojo EPSS helps vulnerability teams move beyond static severity. It continuously enriches Findings with exploitability and threat intelligence signals that can change over time.
+Dojo CTI helps vulnerability teams move beyond static severity. It continuously enriches Findings with exploitability and threat intelligence signals that can change over time.
 
 The library:
 
 - extracts CVEs from DefectDojo Findings
-- fetches EPSS scores and percentiles from FIRST.org
+- fetches EPSS scores and percentiles from FIRST.org or given data
 - compares EPSS records with existing Findings
 - checks whether Finding CVEs are listed as Known Exploited Vulnerabilities
 - checks whether those CVEs are known to be used in ransomware campaigns
@@ -37,7 +38,7 @@ The library:
 - records every run in audit-friendly update logs
 - exposes results in the UI and API
 
-Dojo EPSS does not import a vulnerability catalog for its own sake. It focuses on the CVEs already present in your DefectDojo environment so the output reflects your actual vulnerability posture.
+Dojo CTI does not import a vulnerability catalog for its own. It focuses on the CVEs already present in your DefectDojo environment so the output reflects your actual vulnerability posture.
 
 ## Data Sources
 
@@ -48,7 +49,7 @@ Default sources:
 - KEV JSON: `https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json`
 - KEV CSV: `https://www.cisa.gov/sites/default/files/csv/known_exploited_vulnerabilities.csv`
 
-The Settings page lets administrators point EPSS and KEV sources to compatible internal mirrors.
+The Settings page lets you point EPSS and KEV sources to compatible internal mirrors.
 
 ## Dependencies
 
@@ -85,7 +86,7 @@ Then run the installer from the root of your DefectDojo checkout.
 Example:
 
 ```bash
-cd ~/DojoLive/django-DefectDojo
+cd ~/path-to-your-DefectDojo/django-DefectDojo
 
 bash "/path/to/Dojo-EPSS/install-dojo-epss.sh" \
      --source "/path/to/Dojo-EPSS" \
@@ -159,28 +160,28 @@ After installation:
 
 ## Uninstall
 
-Dojo EPSS includes a clean uninstall path. Run the uninstall command from the root of your DefectDojo checkout:
+Dojo CTI includes a clean uninstall path. Run the uninstall command from the root of your DefectDojo checkout:
 
 ```bash
-cd ~/DojoLive/django-DefectDojo
+cd ~/path-to-your-defectdojo/django-DefectDojo
 
 bash "/path/to/Dojo-EPSS/install-dojo-epss.sh" --uninstall
 ```
 
 The uninstaller will:
 
-- migrate Dojo EPSS database tables back to zero
+- migrate Dojo CTI database tables back to zero
 - uninstall the `dojo-epss` Python package from running Django/Celery containers when possible
 - reverse the additive DefectDojo template patches
 - remove the Dojo EPSS settings block from `dojo/settings/local_settings.py`
 - remove the local `dojo_epss_pkg` copy
 - restart Django/Celery containers when the stack is running
 
-The uninstall process is designed to remove Dojo EPSS cleanly without breaking Django-DefectDojo core files or unrelated DefectDojo data. It only targets Dojo EPSS-owned tables, package files, settings block, and template patch additions.
+The uninstall process is designed to remove Dojo CTI cleanly without breaking Django-DefectDojo core files or unrelated DefectDojo data. It only targets Dojo CTI-owned tables, package files, settings block, and template patch additions.
 
 ## Scheduling
 
-Dojo EPSS uses DefectDojo's existing Celery worker and Celery beat setup.
+Dojo CTI uses DefectDojo's existing Celery worker and Celery beat setup.
 
 The installer adds one static hourly dispatcher task:
 
@@ -212,7 +213,7 @@ Manual actions are superuser-only and write update logs.
 
 ## API
 
-Dojo EPSS exposes a Swagger-visible API endpoint:
+Dojo CTI exposes a Swagger-visible API endpoint:
 
 ```http
 GET /api/v2/dojo_epss/finding-matches/
@@ -258,11 +259,4 @@ Dojo EPSS is released under the BSD-3-Clause License.
 
 See [LICENSE](LICENSE).
 
-## Author
 
-Madhav Dhungana
-
-## Project Links
-
-- Homepage: `https://github.com/madhav-dhungana/Dojo-EPSS`
-- Source: `https://github.com/madhav-dhungana/Dojo-EPSS`
